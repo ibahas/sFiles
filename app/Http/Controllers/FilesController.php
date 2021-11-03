@@ -124,7 +124,7 @@ class FilesController extends Controller
         // dd($parent_id);
         return view('show', compact('files', 'parent_id'));
     }
-
+    
     /**
      * Show the form for editing the specified resource.
      *
