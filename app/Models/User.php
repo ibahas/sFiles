@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Str;
+use Laravel\Sanctum\HasApiTokens;
+use Laravel\Sanctum\NewAccessToken;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
@@ -45,5 +47,23 @@ class User extends Authenticatable
     public function files()
     {
         return $this->belongsTo(files::class, 'user_id')->withDefault();
+    }
+    /**
+     * Create a new personal access token for the user.
+     *
+     * @param  string  $name
+     * @param  array  $abilities
+     * @return \Laravel\Sanctum\NewAccessToken
+     */
+    public function createToken(string $name, array $abilities = ['*'], $fcm_token = null)
+    {
+        $token = $this->tokens()->create([
+            'name' => $name,
+            'token' => hash('sha256', $plainTextToken = Str::random(40)),
+            'abilities' => $abilities,
+            'fcm_token' => $fcm_token,
+        ]);
+
+        return new NewAccessToken($token, $token->getKey() . '|' . $plainTextToken);
     }
 }
